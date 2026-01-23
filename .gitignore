@@ -1,0 +1,14 @@
+############################
+# Global ignore for project
+############################
+
+# Ignore all PyTorch model checkpoints
+*.pth
+*.pt
+*.pth.tar
+*.ckpt
+
+# Ignore any directory named "heatmap_img" and its contents
+heatmap_img/
+**/heatmap_img/
+
