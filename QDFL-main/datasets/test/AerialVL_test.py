@@ -26,11 +26,14 @@ default_transform = T.Compose([
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-BASE_PATH = '/media/whu/Largedisk/datasets/VLAerial/VPR/'
+BASE_PATH = os.environ.get('AERIALVL_TEST_ROOT', '/media/whu/Largedisk/datasets/VLAerial/VPR/')
+# Example:
+#   export AERIALVL_TEST_ROOT="/abs/path/to/VLAerial/VPR"
 
-if not Path(BASE_PATH).exists():
+# Only check path when actually needed (lazy check)
+if not Path(BASE_PATH).exists() and os.environ.get('AERIALVL_TEST_ROOT'):
     raise FileNotFoundError(
-        'BASE_PATH is hardcoded, please adjust to point to VLAerial/VPR/')
+        f'BASE_PATH is not found: {BASE_PATH}. Please check AERIALVL_TEST_ROOT environment variable.')
 
 def latlon_to_utm(longitude,latitude):
     # 根据经度确定 UTM 投影带

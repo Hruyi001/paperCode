@@ -14,11 +14,15 @@ default_transform = T.Compose([
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-BASE_PATH = '/media/whu/Largedisk/datasets/U1652/University-Release/test/'
+BASE_PATH = os.environ.get('U1652_TEST_ROOT', '/media/whu/Largedisk/datasets/U1652/University-Release/test/')
+# Example:
+#   export U1652_TEST_ROOT="/abs/path/to/University-Release/test"
 
-if not Path(BASE_PATH).exists():
+# Only check path when actually needed (lazy check)
+if not Path(BASE_PATH).exists() and os.environ.get('U1652_TEST_ROOT'):
+    # Only raise error if environment variable is explicitly set but path doesn't exist
     raise FileNotFoundError(
-        'BASE_PATH is hardcoded, please adjust to point to U1652/test')
+        f'BASE_PATH is not found: {BASE_PATH}. Please check U1652_TEST_ROOT environment variable.')
 
 class MW_U1652_test(Dataset):
     def __init__(self, which_path, transform=None):

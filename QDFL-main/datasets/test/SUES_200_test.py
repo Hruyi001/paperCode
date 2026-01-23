@@ -11,11 +11,15 @@ default_transform = T.Compose([
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-BASE_PATH = '/media/whu/Largedisk/datasets/SUES-200-512x512/Testing'
+BASE_PATH = os.environ.get('SUES200_TEST_ROOT', '/media/whu/Largedisk/datasets/SUES-200-512x512/Testing')
+# Example:
+#   export SUES200_TEST_ROOT="/abs/path/to/SUES-200-512x512/Testing"
 
-if not Path(BASE_PATH).exists():
+# Only check path when actually needed (lazy check)
+if not Path(BASE_PATH).exists() and os.environ.get('SUES200_TEST_ROOT'):
+    # Only raise error if environment variable is explicitly set but path doesn't exist
     raise FileNotFoundError(
-        'BASE_PATH is hardcoded, please adjust to point to SUES-200-512x512/Testing')
+        f'BASE_PATH is not found: {BASE_PATH}. Please check SUES200_TEST_ROOT environment variable.')
 
 class SUES200_test(Dataset):
     def __init__(self, which_path, height, transform=None):

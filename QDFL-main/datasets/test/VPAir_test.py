@@ -2,17 +2,19 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
+import os
 
-DATASET_ROOT = '/media/whu/Largedisk/datasets/VPAir/'
+DATASET_ROOT = os.environ.get('VPAIR_TEST_ROOT', '/media/whu/Largedisk/datasets/VPAir/')
 # GT_ROOT = './datasets_cache/' # BECAREFUL, this is the ground truth that comes with GSV-Cities
-GT_ROOT = '/media/whu/Largedisk/datasets/VPAir/VPAir_q_db_gt/'   # test
+GT_ROOT = os.environ.get('VPAIR_GT_ROOT', os.path.join(DATASET_ROOT, 'VPAir_q_db_gt/'))
 
-path_obj = Path(DATASET_ROOT)
-if not path_obj.exists():
-    raise Exception(f'Please make sure the path {DATASET_ROOT} to VPAir dataset is correct')
-
-if not path_obj.joinpath('ref') or not path_obj.joinpath('query'):
-    raise Exception(f'Please make sure the directories query and ref are situated in the directory {DATASET_ROOT}')
+# Only check path when actually needed (lazy check)
+if os.environ.get('VPAIR_TEST_ROOT'):
+    path_obj = Path(DATASET_ROOT)
+    if not path_obj.exists():
+        raise Exception(f'Please make sure the path {DATASET_ROOT} to VPAir dataset is correct')
+    if not path_obj.joinpath('ref') or not path_obj.joinpath('query'):
+        raise Exception(f'Please make sure the directories query and ref are situated in the directory {DATASET_ROOT}')
 
 
 class VPAir_test(Dataset):

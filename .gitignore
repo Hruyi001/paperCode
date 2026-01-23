@@ -12,3 +12,38 @@
 heatmap_img/
 **/heatmap_img/
 
+# Ignore all compression archives
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+
+# Ignore any directory named "heatmap_results_batch" and its contents
+heatmap_results_batch/
+**/heatmap_results_batch/
+
+# Ignore all image files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.tif
+*.svg
+*.webp
+*.ico
+*.heic
+*.heif
+*.raw
+*.cr2
+*.nef
+*.orf
+*.sr2
+

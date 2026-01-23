@@ -8,16 +8,20 @@ from torch.utils.data import Dataset
 from os.path import join
 from sklearn.neighbors import NearestNeighbors
 import h5py
+import os
 default_transform = T.Compose([
     T.ToTensor(),
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-BASE_PATH = '/media/whu/Largedisk/datasets/thermal_h5_datasets/'
+BASE_PATH = os.environ.get('BOSON_TEST_ROOT', '/media/whu/Largedisk/datasets/thermal_h5_datasets/')
+# Example:
+#   export BOSON_TEST_ROOT="/abs/path/to/thermal_h5_datasets"
 
-if not Path(BASE_PATH).exists():
+# Only check path when actually needed (lazy check)
+if not Path(BASE_PATH).exists() and os.environ.get('BOSON_TEST_ROOT'):
     raise FileNotFoundError(
-        'BASE_PATH is hardcoded, please adjust to point to thermal_h5_datasets')
+        f'BASE_PATH is not found: {BASE_PATH}. Please check BOSON_TEST_ROOT environment variable.')
 
 base_transform = T.Compose(
     [

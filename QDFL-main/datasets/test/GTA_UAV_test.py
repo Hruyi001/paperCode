@@ -14,11 +14,14 @@ default_transform = T.Compose([
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-BASE_PATH = '/media/whu/Largedisk/datasets/GTA-UAV-LR/'
+BASE_PATH = os.environ.get('GTA_UAV_TEST_ROOT', '/media/whu/Largedisk/datasets/GTA-UAV-LR/')
+# Example:
+#   export GTA_UAV_TEST_ROOT="/abs/path/to/GTA-UAV-LR"
 
-if not Path(BASE_PATH).exists():
+# Only check path when actually needed (lazy check)
+if not Path(BASE_PATH).exists() and os.environ.get('GTA_UAV_TEST_ROOT'):
     raise FileNotFoundError(
-        'BASE_PATH is hardcoded, please adjust to point to GTA-UAV/')
+        f'BASE_PATH is not found: {BASE_PATH}. Please check GTA_UAV_TEST_ROOT environment variable.')
 
 SATE_LENGTH = 24576
 TILE_LENGTH = 256

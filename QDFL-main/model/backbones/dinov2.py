@@ -1,4 +1,5 @@
 import time
+import os
 
 import einops
 import torch
@@ -12,10 +13,14 @@ DINOV2_ARCHS = {
     'dinov2_vitl14': 1024,
     'dinov2_vitg14': 1536,
 }
+
+# Get pretrained weights path from environment variable or use default
+DINOV2_WEIGHTS_BASE = os.environ.get('DINOV2_WEIGHTS_DIR', './pretrained_weights')
+# Allow override for specific models via environment variables
 DINOV2_WEIGHTS = {
-    'dinov2_vits14': 'your_own_path/pretrained_weights/dinov2_vits14_pretrain.pth',
-    'dinov2_vitb14': 'your_own_path/pretrained_weights/dinov2_vitb14_pretrain.pth',
-    'dinov2_vitl14': 'your_own_path/pretrained_weights/dinov2_vitl14_pretrain.pth',
+    'dinov2_vits14': os.environ.get('DINOV2_VITS14_WEIGHT', os.path.join(DINOV2_WEIGHTS_BASE, 'dinov2_vits14_pretrain.pth')),
+    'dinov2_vitb14': os.environ.get('DINOV2_VITB14_WEIGHT', os.path.join(DINOV2_WEIGHTS_BASE, 'dinov2_vitb14_pretrain.pth')),
+    'dinov2_vitl14': os.environ.get('DINOV2_VITL14_WEIGHT', os.path.join(DINOV2_WEIGHTS_BASE, 'dinov2_vitl14_pretrain.pth')),
     'dinov2_vitg14': 'none',
 }
 DINOV2_LAYERS = {
@@ -110,7 +115,41 @@ class DINOv2(nn.Module):
             model = vit_giant2(patch_size=14, img_size=518, init_values=1, block_chunks=0)
 
         model_dict = model.state_dict()
-        state_dict = torch.load(DINOV2_WEIGHTS[model_name])
+        weight_path = DINOV2_WEIGHTS[model_name]
+        
+        # Check if weight_path is a checkpoint file (contains 'backbone.model.')
+        if weight_path.endswith('.pth') or weight_path.endswith('.ckpt'):
+            try:
+                checkpoint = torch.load(weight_path, map_location='cpu')
+                # If checkpoint contains 'backbone.model.' keys, extract backbone weights
+                if isinstance(checkpoint, dict):
+                    if any(k.startswith('backbone.model.') for k in checkpoint.keys()):
+                        # Extract backbone weights from checkpoint
+                        state_dict = {}
+                        for k, v in checkpoint.items():
+                            if k.startswith('backbone.model.'):
+                                # Remove 'backbone.model.' prefix
+                                new_key = k.replace('backbone.model.', '')
+                                state_dict[new_key] = v
+                    elif 'state_dict' in checkpoint:
+                        # PyTorch Lightning checkpoint format
+                        checkpoint = checkpoint['state_dict']
+                        state_dict = {}
+                        for k, v in checkpoint.items():
+                            if k.startswith('backbone.model.'):
+                                new_key = k.replace('backbone.model.', '')
+                                state_dict[new_key] = v
+                    else:
+                        # Assume it's a direct state dict
+                        state_dict = checkpoint
+                else:
+                    state_dict = checkpoint
+            except Exception as e:
+                raise FileNotFoundError(f"Failed to load weights from {weight_path}: {e}")
+        else:
+            # Load from standard pretrained weights file
+            state_dict = torch.load(weight_path, map_location='cpu')
+        
         model_dict.update(state_dict.items())
         model.load_state_dict(model_dict, strict=True)
 

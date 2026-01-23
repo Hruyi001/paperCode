@@ -9,6 +9,7 @@ from plModules import *
 from datasets.train import *
 from utils.commons import load_config
 from utils.MyTQDMProgressBar import MyTQDMProgressBar
+import os
 
 torch.autograd.set_detect_anomaly(True)
 
@@ -20,45 +21,47 @@ options = load_config('./model_configs/dino_b_QDFL.yaml')
 '''
 换数据集训练的时候别忘了改num_classes
 '''
-# dm = SUES_200_DataModule(
-#         batch_size=options['batch_size'],
-#         image_size=options['image_size'],
-#         sample_num=options['sample_num'],
-#         height=250,
-#         num_workers=4,
-#         DAC_sampling=options['DAC_sampling'],
-#         show_data_stats=True,
-#         )
+QDFL_DATASET = os.environ.get("QDFL_DATASET", "U1652").upper()
 
-# dm = DenseUAVDataModule(
-#         batch_size=options['batch_size'],
-#         image_size=options['image_size'],
-#         sample_num=1,
-#         num_workers=4,
-#         show_data_stats=True,
-#         sources = ['satellite','drone'],
-#         data_augmentation = {
-#                     'rotate_crop':["uav"],
-#                     'random_affine':["satellite"],
-#                     'color_jittering':[None],
-#                     'random_erasing':[None],
-#                     'random_erasing_prob':0.5}
-#         )
-
-dm = U1652DataModule(
-        batch_size=options['batch_size'],
-        image_size=options['image_size'],
-        sample_num=options['sample_num'],
-        num_workers=4,
-        DAC_sampling=options['DAC_sampling'],
-        drop_last=options['drop_last'] if 'drop_last' in options else True,
-        show_data_stats=True,
-        sources = ['satellite', 'street', 'drone'],
-        )
-
-m = U1652_model(**options['model_configs'])
-# m = DAC_model(**options['model_configs'])
-# m = DenseUAV_model(**options['model_configs'])
+if QDFL_DATASET in {"SUES", "SUES200", "SUES-200"}:
+    dm = SUES_200_DataModule(
+            batch_size=options['batch_size'],
+            image_size=options['image_size'],
+            sample_num=options['sample_num'],
+            height=int(os.environ.get("SUES200_HEIGHT", "250")),
+            num_workers=int(os.environ.get("NUM_WORKERS", "4")),
+            DAC_sampling=options['DAC_sampling'],
+            show_data_stats=True,
+            )
+    m = U1652_model(**options['model_configs'])
+elif QDFL_DATASET in {"DENSEUAV"}:
+    dm = DenseUAVDataModule(
+            batch_size=options['batch_size'],
+            image_size=options['image_size'],
+            sample_num=1,
+            num_workers=int(os.environ.get("NUM_WORKERS", "4")),
+            show_data_stats=True,
+            sources=['satellite', 'drone'],
+            data_augmentation={
+                        'rotate_crop': ["uav"],
+                        'random_affine': ["satellite"],
+                        'color_jittering': [None],
+                        'random_erasing': [None],
+                        'random_erasing_prob': 0.5}
+            )
+    m = DenseUAV_model(**options['model_configs'])
+else:
+    dm = U1652DataModule(
+            batch_size=options['batch_size'],
+            image_size=options['image_size'],
+            sample_num=options['sample_num'],
+            num_workers=int(os.environ.get("NUM_WORKERS", "4")),
+            DAC_sampling=options['DAC_sampling'],
+            drop_last=options['drop_last'] if 'drop_last' in options else True,
+            show_data_stats=True,
+            sources=['satellite', 'street', 'drone'],
+            )
+    m = U1652_model(**options['model_configs'])
 
 checkpoint_cb = ModelCheckpoint(
         monitor='drone_train_acc',

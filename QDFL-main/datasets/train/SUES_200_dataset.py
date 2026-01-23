@@ -14,11 +14,14 @@ default_transform = T.Compose([
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-BASE_PATH = '/media/whu/Largedisk/datasets/SUES-200-512x512/Training'
+BASE_PATH = os.environ.get('SUES200_TRAIN_ROOT', '/media/whu/Largedisk/datasets/SUES-200-512x512/Training')
+# Example:
+#   export SUES200_TRAIN_ROOT="/abs/path/to/SUES-200-512x512/Training"
 
-if not Path(BASE_PATH).exists():
+# Only check path when environment variable is explicitly set (lazy check)
+if os.environ.get('SUES200_TRAIN_ROOT') and not Path(BASE_PATH).exists():
     raise FileNotFoundError(
-        'BASE_PATH is hardcoded, please adjust to point to SUES-200-512x512/Training')
+        f'SUES200_TRAIN_ROOT is invalid or missing. Got: {BASE_PATH}')
 
 
 class SUES200Dataset(Dataset):

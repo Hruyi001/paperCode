@@ -13,7 +13,9 @@ default_transform = T.Compose([
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-BASE_PATH = '/media/whu/Largedisk/datasets/DenseUAV/train'
+BASE_PATH = os.environ.get('DENSEUAV_TRAIN_ROOT', '/media/whu/Largedisk/datasets/DenseUAV/train')
+# Example:
+#   export DENSEUAV_TRAIN_ROOT="/abs/path/to/DenseUAV/train"
 
 # if not Path(BASE_PATH).exists():
 #     raise FileNotFoundError(
