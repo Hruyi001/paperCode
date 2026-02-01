@@ -1,0 +1,58 @@
+DAC_sampling: false
+backbone_configs:
+  adapter: true
+  layers_to_crop: []
+  layers_to_freeze: 12
+  norm_layer: true
+  return_token: true
+  return_token_list: false
+backbone_name: dinov2_vitb14
+batch_size: 24
+components_configs:
+  cls_token: true
+  in_channels: 768
+  num_classes: 701
+  num_supervisor: 2
+  query_configs:
+    num_queries: 8
+  return_f: true
+components_name: QDFL
+drop_last: true
+grad_optimizer_name: false
+image_size:
+- 224
+- 224
+loss_config:
+  add_KLloss: true
+  add_MMDloss: false
+  add_MSEloss: false
+  hard_factor: 0.0
+  kernel_mul: 3
+  kernel_num: 5
+  margin: 0.4
+  which_contrast_loss: multisim
+lr: 0.03
+lr_sched: cosine
+lr_sched_config:
+  T_max: 160
+mean_std:
+  mean:
+  - 0.485
+  - 0.456
+  - 0.406
+  std:
+  - 0.229
+  - 0.224
+  - 0.225
+momentum: 0.9
+num_workers: 4
+optimizer: sgd
+sample_num: 1
+show_data_stats: true
+sources:
+- satellite
+- street
+- drone
+views: 2
+warmpup_steps: 175
+weight_decay: 0.0005

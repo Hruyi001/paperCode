@@ -27,12 +27,15 @@ def generate_heatmap_data(model, img_path, opt):
     feature_maps = None
     gradients = None
     
-    # 图像预处理
-    transform = transforms.Compose([
-        transforms.Resize((opt.h, opt.w), interpolation=3),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
+    # 图像预处理（如果opt中有transform则使用，否则使用默认transform）
+    if hasattr(opt, 'transform') and opt.transform is not None:
+        transform = opt.transform
+    else:
+        transform = transforms.Compose([
+            transforms.Resize((opt.h, opt.w), interpolation=3),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
     img = Image.open(img_path).convert("RGB")
     img_tensor = transform(img).unsqueeze(0).cuda()
     img_tensor.requires_grad = True

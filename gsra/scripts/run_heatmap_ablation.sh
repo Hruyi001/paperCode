@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# One-click script to generate Fig.4-style ablation heatmaps for GSRA and baselines.
-# This script automatically finds checkpoints for all comparative methods.
+# One-click script to generate GSRA heatmaps only.
+# This script automatically finds the GSRA checkpoint.
 
 # --- Configuration: Direct paths ---
 PROJECT_ROOT="/root/code/gsra"
 DATASET="U1652-S2D"   # U1652-S2D or U1652-D2S
-DATA_ROOT="/root/dataset/University-Release/"
-OUT_DIR="${PROJECT_ROOT}/heatpmap_img"
+# Input images directory: should point to the root directory containing "test" subdirectory
+# The script will automatically look for test/query_* and test/gallery_* subdirectories
+INPUT_IMG_DIR="/root/exp/exp3/1.0/img"
+# Output images directory: where the generated heatmap images will be saved
+OUTPUT_IMG_DIR="${PROJECT_ROOT}/heatpmap_img"
 NUM_PAIRS=3
 IMG_SIZE=384
 CHECKPOINT_BASE="${PROJECT_ROOT}/checkpoints"
+# GSRA checkpoint path (leave empty to auto-find, or specify full path)
+GSRA_CHECKPOINT="/root/code/gsra/checkpoint/best_score.pth"
 
 # --- Find checkpoints automatically ---
-# Methods to look for (in order for display)
-METHODS=("baseline" "CBAM" "CA" "ECA" "EMA" "GSRA")
+# Only look for GSRA checkpoint
+METHODS=("GSRA")
 
 # Function to find the most recent checkpoint for a method
 find_checkpoint() {
@@ -61,7 +66,14 @@ find_checkpoint() {
 VARIANTS_JSON="{"
 first=true
 for method in "${METHODS[@]}"; do
-    ckpt=$(find_checkpoint "${method}" "${DATASET}" "${CHECKPOINT_BASE}" || echo "")
+    # If GSRA_CHECKPOINT is specified, use it; otherwise try to find automatically
+    if [ "${method}" = "GSRA" ] && [ -n "${GSRA_CHECKPOINT}" ] && [ -f "${GSRA_CHECKPOINT}" ]; then
+        ckpt="${GSRA_CHECKPOINT}"
+        echo "Using specified GSRA checkpoint: ${ckpt}"
+    else
+        ckpt=$(find_checkpoint "${method}" "${DATASET}" "${CHECKPOINT_BASE}" || echo "")
+    fi
+    
     if [ -n "${ckpt}" ] && [ -f "${ckpt}" ]; then
         if [ "$first" = true ]; then
             first=false
@@ -77,8 +89,15 @@ done
 VARIANTS_JSON="${VARIANTS_JSON}}"
 
 if [ "$VARIANTS_JSON" = "{}" ]; then
-    echo "Error: No checkpoints found! Please train models first."
-    echo "Run: ${PROJECT_ROOT}/scripts/train_all_comparative_methods.sh"
+    echo "Error: No GSRA checkpoint found!"
+    echo ""
+    echo "Please either:"
+    echo "  1. Set GSRA_CHECKPOINT variable in this script to point to your GSRA checkpoint"
+    echo "     Example: GSRA_CHECKPOINT=\"/path/to/checkpoint/best_score.pth\""
+    echo "  2. Or train a GSRA model first"
+    echo ""
+    echo "To train GSRA model, run:"
+    echo "  python3 ${PROJECT_ROOT}/train_comparative_methods.py --attention GSRA --dataset ${DATASET} --model_path ${CHECKPOINT_BASE}"
     exit 1
 fi
 
@@ -99,8 +118,8 @@ export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH:-}"
 
 python3 "${PROJECT_ROOT}/visualize/heatmap_ablation.py" \
   --dataset "${DATASET}" \
-  --data_root "${DATA_ROOT}" \
+  --data_root "${INPUT_IMG_DIR}" \
   --num_pairs "${NUM_PAIRS}" \
   --img_size "${IMG_SIZE}" \
-  --out_dir "${OUT_DIR}" \
+  --out_dir "${OUTPUT_IMG_DIR}" \
   --variant_checkpoints "${VARIANTS_JSON}"

@@ -74,7 +74,6 @@ def align_image(original_img, theta, img_size=256, debug=False):
     # 直接使用theta创建affine grid
     # F.affine_grid会根据img_tensor.size()自动处理归一化
     # theta矩阵中的平移参数已经是相对于归一化坐标的
-    
     # 调试：打印theta值和变换参数
     if debug:
         print(f"\nTheta矩阵:\n{theta}")

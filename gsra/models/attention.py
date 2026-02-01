@@ -265,7 +265,10 @@ class GSRA(nn.Module):
 
 
 def get_attention(attention='GSRA', channel=384, spatial=576):
-    if attention.lower() == 'se':
+    if attention is None:
+        print('There is no attention in the model')
+        return nn.Identity()
+    elif attention.lower() == 'se':
         return SEAttention(channel=channel)
     elif attention.lower() == 'cbam':
         return CBAM(channel=channel)
@@ -277,6 +280,6 @@ def get_attention(attention='GSRA', channel=384, spatial=576):
         return EMA(channels=channel)
     elif attention.lower() == 'gsra':
         return GSRA(channel=channel, spatial=spatial)
-    elif attention is None:
-        print('There is no attention in the model')
+    else:
+        print(f'Unknown attention mechanism: {attention}, using Identity')
         return nn.Identity()

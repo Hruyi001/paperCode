@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Generate ablation heatmaps (Fig.4-style) for different attention modules.
+Generate GSRA heatmaps only, overlaid on original images.
 
-We compute a similarity-driven Grad-CAM:
-- pick matched (query, gallery) image pairs by shared folder id
-- forward both through the model to get descriptors
-- maximize cosine similarity between the pair (scalar objective)
+For each image in the input directory:
+- forward through the model to get descriptor
+- maximize feature magnitude (L2 norm) as objective
 - backprop to feature maps at the *attention output* and build Grad-CAM
 
-Outputs a grid image with columns:
-Input | baseline | CBAM | CA | ECA | EMA | GSRA
+Outputs a grid image with GSRA heatmaps overlaid on original images.
 """
 
 from __future__ import annotations
@@ -87,34 +85,80 @@ def overlay_cam(img_rgb: np.ndarray, cam: np.ndarray, alpha: float = 0.45) -> np
 def gradcam_from_hook(
     hook: GradCAMHook,
     input_tensor: torch.Tensor,
-    gallery_tensor: torch.Tensor,
-    model: GeoModel,
+    gallery_tensor: Optional[torch.Tensor] = None,
+    model: Optional[GeoModel] = None,
 ) -> np.ndarray:
     """
-    Returns cam (H, W) in [0,1] for the *query* input, computed from attention output.
+    Returns cam (H, W) in [0,1] for the input, computed from attention output.
+    If gallery_tensor is provided, uses similarity-driven Grad-CAM.
+    Otherwise, uses feature magnitude-driven Grad-CAM for single image.
     """
+    if model is None:
+        raise ValueError("Model must be provided")
+    
     model.zero_grad(set_to_none=True)
+    # Need to enable gradient computation
+    input_tensor.requires_grad_(True)
+    
+    # Set model to eval mode but enable gradients for parameters
     model.eval()
+    for param in model.parameters():
+        param.requires_grad = True
 
-    q_desc = model(input_tensor)  # (1, D)
-    g_desc = model(gallery_tensor)  # (1, D)
-    sim = F.cosine_similarity(q_desc, g_desc, dim=1).mean()
-    # maximize similarity -> take negative as loss to minimize
-    loss = -sim
+    if gallery_tensor is not None:
+        # Pair-based: similarity-driven Grad-CAM
+        q_desc = model(input_tensor)  # (1, D)
+        g_desc = model(gallery_tensor)  # (1, D)
+        sim = F.cosine_similarity(q_desc, g_desc, dim=1).mean()
+        # maximize similarity -> take negative as loss to minimize
+        loss = -sim
+    else:
+        # Single image: use feature magnitude as target
+        # Forward through model to get descriptor
+        desc = model(input_tensor)  # (1, D)
+        # Maximize the L2 norm of the descriptor (use sum for stronger signal)
+        loss = -desc.norm(dim=1).sum()
+    
     loss.backward()
 
-    if hook.activations is None or hook.gradients is None:
-        raise RuntimeError("GradCAM hook did not capture activations/gradients. Check target layer.")
+    if hook.activations is None:
+        raise RuntimeError("GradCAM hook did not capture activations. Check target layer.")
+    
+    acts = hook.activations  # (1, C, h, w)
+    
+    if hook.gradients is None:
+        print("Warning: Gradients are None, using activation-based CAM instead of Grad-CAM")
+        # Fallback to activation-based CAM
+        cam = acts.mean(dim=1, keepdim=False)  # (1, h, w)
+        cam = F.relu(cam)
+        cam = cam[0]
+        cam = cam - cam.min()
+        cam_max = cam.max()
+        if cam_max < 1e-6:
+            print(f"Warning: CAM values are very small (max={cam_max})")
+        cam = cam / (cam_max + 1e-6)
+        return cam.detach().cpu().numpy().astype(np.float32)
 
     # Grad-CAM: weights = GAP over spatial dims of gradients
     grads = hook.gradients  # (1, C, h, w)
-    acts = hook.activations  # (1, C, h, w)
-    weights = grads.mean(dim=(2, 3), keepdim=True)  # (1, C, 1, 1)
-    cam = (weights * acts).sum(dim=1, keepdim=False)  # (1, h, w)
+    
+    # Check if gradients are all zero or very small
+    grad_magnitude = grads.abs().sum().item()
+    if grad_magnitude < 1e-8:
+        print(f"Warning: Gradients are very small (magnitude={grad_magnitude}), using activation-based CAM")
+        # Fallback to activation-based CAM
+        cam = acts.mean(dim=1, keepdim=False)  # (1, h, w)
+    else:
+        weights = grads.mean(dim=(2, 3), keepdim=True)  # (1, C, 1, 1)
+        cam = (weights * acts).sum(dim=1, keepdim=False)  # (1, h, w)
+    
     cam = F.relu(cam)
     cam = cam[0]
     cam = cam - cam.min()
-    cam = cam / (cam.max() + 1e-6)
+    cam_max = cam.max()
+    if cam_max < 1e-6:
+        print(f"Warning: CAM values are very small (max={cam_max}), heatmap might appear empty")
+    cam = cam / (cam_max + 1e-6)
     return cam.detach().cpu().numpy().astype(np.float32)
 
 
@@ -133,17 +177,69 @@ def pick_pairs(
 ) -> List[Tuple[str, str]]:
     """
     Picks (query_img_path, gallery_img_path) with the same folder-id.
-    Query folders contain 1 image; gallery may contain multiple (we pick the first).
+    Supports both directory-based structure and flat file structure.
+    For flat structure: query images are {id}.jpg, gallery images are {id}-0.png
     """
     rng = np.random.default_rng(seed)
+    
+    # Try directory-based structure first
     q = get_data(query_root)
     g = get_data(gallery_root)
     ids = sorted(set(q.keys()).intersection(g.keys()))
+    
+    # If no directory-based structure found, try flat file structure
     if len(ids) == 0:
-        raise RuntimeError(
-            "No overlapping IDs between query and gallery. "
-            f"query_root={query_root} gallery_root={gallery_root}"
-        )
+        # Check if query_root and gallery_root are the same directory (flat structure)
+        # Normalize paths to handle different representations of the same path
+        query_dir = os.path.abspath(query_root) if os.path.isdir(query_root) else os.path.abspath(os.path.dirname(query_root))
+        gallery_dir = os.path.abspath(gallery_root) if os.path.isdir(gallery_root) else os.path.abspath(os.path.dirname(gallery_root))
+        
+        if query_root == gallery_root or query_dir == gallery_dir:
+            # Flat structure: all images in one directory
+            img_dir = query_root if os.path.isdir(query_root) else os.path.dirname(query_root)
+            if not os.path.isdir(img_dir):
+                img_dir = gallery_root if os.path.isdir(gallery_root) else os.path.dirname(gallery_root)
+            
+            # Find all .jpg files (query) and -0.png files (gallery)
+            import glob
+            query_files = {}
+            gallery_files = {}
+            
+            for jpg_file in glob.glob(os.path.join(img_dir, "*.jpg")):
+                basename = os.path.basename(jpg_file)
+                img_id = os.path.splitext(basename)[0]
+                query_files[img_id] = jpg_file
+            
+            for png_file in glob.glob(os.path.join(img_dir, "*-0.png")):
+                basename = os.path.basename(png_file)
+                # Extract ID from filename like "26-0.png" -> "26"
+                img_id = basename.split("-")[0]
+                gallery_files[img_id] = png_file
+            
+            ids = sorted(set(query_files.keys()).intersection(gallery_files.keys()))
+            
+            if len(ids) == 0:
+                raise RuntimeError(
+                    "No overlapping IDs between query and gallery. "
+                    f"query_root={query_root} gallery_root={gallery_root}\n"
+                    f"Found {len(query_files)} query files and {len(gallery_files)} gallery files."
+                )
+            
+            if num_pairs > len(ids):
+                num_pairs = len(ids)
+            chosen = rng.choice(ids, size=num_pairs, replace=False).tolist()
+            
+            pairs: List[Tuple[str, str]] = []
+            for sid in chosen:
+                pairs.append((query_files[sid], gallery_files[sid]))
+            return pairs
+        else:
+            raise RuntimeError(
+                "No overlapping IDs between query and gallery. "
+                f"query_root={query_root} gallery_root={gallery_root}"
+            )
+    
+    # Directory-based structure
     if num_pairs > len(ids):
         num_pairs = len(ids)
     chosen = rng.choice(ids, size=num_pairs, replace=False).tolist()
@@ -222,8 +318,8 @@ def make_grid(
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", type=str, choices=["U1652-D2S", "U1652-S2D"], default="U1652-S2D")
-    ap.add_argument("--data_root", type=str, required=True, help="Path to U1652 root folder")
-    ap.add_argument("--num_pairs", type=int, default=3)
+    ap.add_argument("--data_root", type=str, required=True, help="Path to directory containing input images")
+    ap.add_argument("--num_pairs", type=int, default=3, help="Number of images to process (0 for all)")
     ap.add_argument("--img_size", type=int, default=384)
     ap.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     ap.add_argument(
@@ -238,32 +334,30 @@ def main():
 
     os.makedirs(args.out_dir, exist_ok=True)
 
-    # dataset roots
-    if args.dataset == "U1652-D2S":
-        query_root = os.path.join(args.data_root, "test", "query_drone")
-        gallery_root = os.path.join(args.data_root, "test", "gallery_satellite")
-    else:
-        query_root = os.path.join(args.data_root, "test", "query_satellite")
-        gallery_root = os.path.join(args.data_root, "test", "gallery_drone")
-
     variants: Dict[str, str] = json.loads(args.variant_checkpoints)
-    # Only process available variants (skip missing ones)
-    # Default order: Input first, then available variants in paper order
-    # Paper order: baseline, CBAM, CA, ECA, EMA, GSRA
-    paper_order = ["baseline", "CBAM", "CA", "ECA", "EMA", "GSRA"]
-    available_variants = [v for v in paper_order if v in variants]
-    # Add any other variants not in paper order
-    for v in variants.keys():
-        if v not in available_variants:
-            available_variants.append(v)
-    
-    if not available_variants:
-        raise ValueError("No variants provided in variant_checkpoints")
-    col_order = ["Input"] + available_variants
+    # Only process GSRA variant
+    if "GSRA" not in variants:
+        raise ValueError("GSRA checkpoint not found in variant_checkpoints")
+    col_order = ["GSRA"]
 
     val_transforms, _, _ = get_transforms((args.img_size, args.img_size))
 
-    pairs = pick_pairs(query_root, gallery_root, num_pairs=args.num_pairs, seed=args.seed)
+    # Get all image files from data_root directory
+    import glob
+    image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.JPG', '*.JPEG', '*.PNG']
+    image_files = []
+    for ext in image_extensions:
+        image_files.extend(glob.glob(os.path.join(args.data_root, ext)))
+    
+    if len(image_files) == 0:
+        raise RuntimeError(f"No image files found in {args.data_root}")
+    
+    # Limit number of images if specified
+    if args.num_pairs > 0 and args.num_pairs < len(image_files):
+        rng = np.random.default_rng(args.seed)
+        image_files = rng.choice(image_files, size=args.num_pairs, replace=False).tolist()
+    else:
+        image_files = image_files[:args.num_pairs] if args.num_pairs > 0 else image_files
 
     # Preload models per variant
     # Note: backbone output channels in this repo are 768 (ConvNeXt tiny cropped) by default,
@@ -282,7 +376,7 @@ def main():
 
     models: Dict[str, GeoModel] = {}
     hooks: Dict[str, GradCAMHook] = {}
-    for name in col_order[1:]:  # Skip "Input"
+    for name in col_order:
         if name not in variants:
             continue
         attn = None if name == "baseline" else name
@@ -294,25 +388,26 @@ def main():
         hooks[name] = hook
 
     rows: List[List[np.ndarray]] = []
-    for q_path, g_path in pairs:
-        q_rgb = load_image_rgb(q_path)
-        g_rgb = load_image_rgb(g_path)
+    for img_path in image_files:
+        img_rgb = load_image_rgb(img_path)
 
-        q_t = val_transforms(image=q_rgb)["image"].unsqueeze(0).to(args.device)
-        g_t = val_transforms(image=g_rgb)["image"].unsqueeze(0).to(args.device)
+        img_t = val_transforms(image=img_rgb)["image"].unsqueeze(0).to(args.device)
 
-        # resize input image to match model input for display consistency
-        q_show = cv2.resize(q_rgb, (args.img_size, args.img_size), interpolation=cv2.INTER_LINEAR)
-        row_imgs: List[np.ndarray] = [q_show]
+        # Resize input image to match model input for display consistency
+        img_show = cv2.resize(img_rgb, (args.img_size, args.img_size), interpolation=cv2.INTER_LINEAR)
+        # Only process GSRA heatmap, overlay on original image
+        row_imgs: List[np.ndarray] = []
 
-        for name in col_order[1:]:  # Skip "Input"
+        for name in col_order:
             if name not in models:
                 continue
             model = models[name]
             hook = hooks[name]
-            cam = gradcam_from_hook(hook, q_t, g_t, model)
+            # Generate heatmap for single image (no pairing)
+            cam = gradcam_from_hook(hook, img_t, gallery_tensor=None, model=model)
             cam = cv2.resize(cam, (args.img_size, args.img_size), interpolation=cv2.INTER_LINEAR)
-            row_imgs.append(overlay_cam(q_show, cam))
+            # Overlay heatmap on original image
+            row_imgs.append(overlay_cam(img_show, cam))
 
         rows.append(row_imgs)
 

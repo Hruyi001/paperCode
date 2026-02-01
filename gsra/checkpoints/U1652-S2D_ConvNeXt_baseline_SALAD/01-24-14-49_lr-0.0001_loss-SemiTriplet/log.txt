@@ -1,0 +1,633 @@
+================================================================================
+Training Configuration:
+  Attention: baseline
+  Dataset: U1652-S2D
+  Epochs: 40
+  Batch Size: 32
+  Learning Rate: 0.0001
+  Model Path: /root/code/gsra/checkpoints/U1652-S2D_ConvNeXt_baseline_SALAD/01-24-14-49_lr-0.0001_loss-SemiTriplet
+================================================================================
+There is no attention in the model
+GPUs available: 8
+Query Images Test: 701
+Gallery Images Test: 51355
+Warmup Epochs: 0  - Warmup Steps: 0
+Train Epochs:  40 - Train Steps:  47320
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1094 - Last Element ID: 1530
+
+------------------------------[Epoch: 1]------------------------------
+2026-01-24 14:50:00.860532
+Epoch: 1, Train Loss = 0.118, Lr = 0.000098
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 88.8730 - Recall@5: 93.1526 - Recall@10: 95.4351 - Recall@top1: 99.0014 - AP: 77.6159
+New best score: 0.8887, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0945 - Last Element ID: 1444
+
+------------------------------[Epoch: 2]------------------------------
+2026-01-24 14:55:00.629895
+Epoch: 2, Train Loss = 0.016, Lr = 0.000095
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 92.1541 - Recall@5: 95.2924 - Recall@10: 95.8631 - Recall@top1: 99.0014 - AP: 82.8026
+New best score: 0.9215, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1299 - Last Element ID: 0986
+
+------------------------------[Epoch: 3]------------------------------
+2026-01-24 14:59:07.750702
+Epoch: 3, Train Loss = 0.013, Lr = 0.000093
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 91.4408 - Recall@5: 94.5792 - Recall@10: 95.7204 - Recall@top1: 98.8588 - AP: 85.3123
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1234 - Last Element ID: 1237
+
+------------------------------[Epoch: 4]------------------------------
+2026-01-24 15:03:13.072824
+Epoch: 4, Train Loss = 0.007, Lr = 0.000090
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 92.8673 - Recall@5: 95.5777 - Recall@10: 96.7190 - Recall@top1: 99.1441 - AP: 86.6819
+New best score: 0.9287, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1593 - Last Element ID: 1610
+
+------------------------------[Epoch: 5]------------------------------
+2026-01-24 15:07:48.715940
+Epoch: 5, Train Loss = 0.006, Lr = 0.000088
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 92.8673 - Recall@5: 96.0057 - Recall@10: 96.7190 - Recall@top1: 98.8588 - AP: 86.8918
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1615 - Last Element ID: 0901
+
+------------------------------[Epoch: 6]------------------------------
+2026-01-24 15:12:26.504796
+Epoch: 6, Train Loss = 0.004, Lr = 0.000086
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 93.7233 - Recall@5: 95.4351 - Recall@10: 96.2910 - Recall@top1: 99.0014 - AP: 88.5956
+New best score: 0.9372, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1107 - Last Element ID: 1248
+
+------------------------------[Epoch: 7]------------------------------
+2026-01-24 15:17:03.662405
+Epoch: 7, Train Loss = 0.005, Lr = 0.000083
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 93.8659 - Recall@5: 96.1484 - Recall@10: 96.7190 - Recall@top1: 99.2867 - AP: 87.9443
+New best score: 0.9387, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1242 - Last Element ID: 1494
+
+------------------------------[Epoch: 8]------------------------------
+2026-01-24 15:21:41.240249
+Epoch: 8, Train Loss = 0.004, Lr = 0.000081
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 93.0100 - Recall@5: 95.8631 - Recall@10: 96.7190 - Recall@top1: 99.2867 - AP: 87.3897
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0917 - Last Element ID: 1131
+
+------------------------------[Epoch: 9]------------------------------
+2026-01-24 15:26:16.685739
+Epoch: 9, Train Loss = 0.003, Lr = 0.000079
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 93.7233 - Recall@5: 97.0043 - Recall@10: 97.7175 - Recall@top1: 99.0014 - AP: 88.8646
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1501 - Last Element ID: 1016
+
+------------------------------[Epoch: 10]------------------------------
+2026-01-24 15:30:54.640003
+Epoch: 10, Train Loss = 0.003, Lr = 0.000076
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 93.2953 - Recall@5: 96.4337 - Recall@10: 96.8616 - Recall@top1: 99.2867 - AP: 88.5322
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1606 - Last Element ID: 1176
+
+------------------------------[Epoch: 11]------------------------------
+2026-01-24 15:35:28.634829
+Epoch: 11, Train Loss = 0.002, Lr = 0.000074
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.1498 - Recall@5: 97.0043 - Recall@10: 97.5749 - Recall@top1: 99.0014 - AP: 90.3404
+New best score: 0.9515, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0963 - Last Element ID: 1491
+
+------------------------------[Epoch: 12]------------------------------
+2026-01-24 15:40:17.049414
+Epoch: 12, Train Loss = 0.002, Lr = 0.000071
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.1512 - Recall@5: 96.5763 - Recall@10: 97.2896 - Recall@top1: 99.1441 - AP: 89.9759
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0901 - Last Element ID: 1631
+
+------------------------------[Epoch: 13]------------------------------
+2026-01-24 15:45:09.035790
+Epoch: 13, Train Loss = 0.002, Lr = 0.000069
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 93.5806 - Recall@5: 96.0057 - Recall@10: 96.8616 - Recall@top1: 99.0014 - AP: 89.1736
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0931 - Last Element ID: 1107
+
+------------------------------[Epoch: 14]------------------------------
+2026-01-24 15:49:58.261815
+Epoch: 14, Train Loss = 0.002, Lr = 0.000067
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.5777 - Recall@5: 97.0043 - Recall@10: 97.7175 - Recall@top1: 99.0014 - AP: 90.6259
+New best score: 0.9558, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1406 - Last Element ID: 1264
+
+------------------------------[Epoch: 15]------------------------------
+2026-01-24 15:54:43.334973
+Epoch: 15, Train Loss = 0.002, Lr = 0.000064
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.2939 - Recall@5: 96.5763 - Recall@10: 97.5749 - Recall@top1: 99.0014 - AP: 89.7632
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0927 - Last Element ID: 1352
+
+------------------------------[Epoch: 16]------------------------------
+2026-01-24 15:59:26.537514
+Epoch: 16, Train Loss = 0.002, Lr = 0.000062
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.4351 - Recall@5: 97.2896 - Recall@10: 97.7175 - Recall@top1: 99.2867 - AP: 90.4119
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1074 - Last Element ID: 1354
+
+------------------------------[Epoch: 17]------------------------------
+2026-01-24 16:04:13.171844
+Epoch: 17, Train Loss = 0.002, Lr = 0.000060
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.7204 - Recall@5: 97.4322 - Recall@10: 98.0029 - Recall@top1: 99.1441 - AP: 90.0842
+New best score: 0.9572, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1076 - Last Element ID: 1298
+
+------------------------------[Epoch: 18]------------------------------
+2026-01-24 16:08:59.699468
+Epoch: 18, Train Loss = 0.001, Lr = 0.000057
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.2924 - Recall@5: 97.1469 - Recall@10: 97.2896 - Recall@top1: 99.4294 - AP: 91.4029
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1544 - Last Element ID: 1284
+
+------------------------------[Epoch: 19]------------------------------
+2026-01-24 16:13:44.788819
+Epoch: 19, Train Loss = 0.002, Lr = 0.000055
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.0071 - Recall@5: 97.1469 - Recall@10: 97.2896 - Recall@top1: 99.2867 - AP: 89.8667
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1364 - Last Element ID: 1383
+
+------------------------------[Epoch: 20]------------------------------
+2026-01-24 16:18:14.865361
+Epoch: 20, Train Loss = 0.001, Lr = 0.000052
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.0071 - Recall@5: 97.1469 - Recall@10: 97.5749 - Recall@top1: 99.4294 - AP: 89.4241
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1479 - Last Element ID: 0909
+
+------------------------------[Epoch: 21]------------------------------
+2026-01-24 16:22:42.744908
+Epoch: 21, Train Loss = 0.001, Lr = 0.000050
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.8645 - Recall@5: 97.1469 - Recall@10: 97.7175 - Recall@top1: 99.2867 - AP: 90.2239
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1407 - Last Element ID: 0976
+
+------------------------------[Epoch: 22]------------------------------
+2026-01-24 16:27:10.824014
+Epoch: 22, Train Loss = 0.001, Lr = 0.000048
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.7218 - Recall@5: 96.8616 - Recall@10: 97.2896 - Recall@top1: 99.2867 - AP: 91.0679
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1397 - Last Element ID: 1021
+
+------------------------------[Epoch: 23]------------------------------
+2026-01-24 16:31:37.246037
+Epoch: 23, Train Loss = 0.001, Lr = 0.000045
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.0071 - Recall@5: 96.2910 - Recall@10: 96.5763 - Recall@top1: 99.1441 - AP: 90.9762
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0954 - Last Element ID: 1108
+
+------------------------------[Epoch: 24]------------------------------
+2026-01-24 16:36:06.022566
+Epoch: 24, Train Loss = 0.001, Lr = 0.000043
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.4365 - Recall@5: 96.7190 - Recall@10: 97.4322 - Recall@top1: 99.1441 - AP: 90.7128
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0972 - Last Element ID: 1340
+
+------------------------------[Epoch: 25]------------------------------
+2026-01-24 16:40:31.956386
+Epoch: 25, Train Loss = 0.001, Lr = 0.000041
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.7218 - Recall@5: 97.0043 - Recall@10: 97.2896 - Recall@top1: 99.1441 - AP: 91.4522
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0956 - Last Element ID: 1063
+
+------------------------------[Epoch: 26]------------------------------
+2026-01-24 16:44:58.770692
+Epoch: 26, Train Loss = 0.001, Lr = 0.000038
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.2939 - Recall@5: 95.7204 - Recall@10: 96.7190 - Recall@top1: 99.1441 - AP: 90.7840
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1519 - Last Element ID: 1338
+
+------------------------------[Epoch: 27]------------------------------
+2026-01-24 16:49:20.108162
+Epoch: 27, Train Loss = 0.001, Lr = 0.000036
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.2939 - Recall@5: 96.7190 - Recall@10: 97.0043 - Recall@top1: 99.1441 - AP: 90.6646
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1369 - Last Element ID: 0998
+
+------------------------------[Epoch: 28]------------------------------
+2026-01-24 16:53:10.418530
+Epoch: 28, Train Loss = 0.001, Lr = 0.000033
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.5777 - Recall@5: 96.8616 - Recall@10: 97.2896 - Recall@top1: 99.1441 - AP: 91.4851
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1266 - Last Element ID: 1234
+
+------------------------------[Epoch: 29]------------------------------
+2026-01-24 16:56:57.527729
+Epoch: 29, Train Loss = 0.001, Lr = 0.000031
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.5777 - Recall@5: 97.4322 - Recall@10: 98.0029 - Recall@top1: 99.2867 - AP: 91.4849
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1533 - Last Element ID: 1095
+
+------------------------------[Epoch: 30]------------------------------
+2026-01-24 17:01:21.963910
+Epoch: 30, Train Loss = 0.001, Lr = 0.000029
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.0071 - Recall@5: 97.0043 - Recall@10: 97.2896 - Recall@top1: 99.1441 - AP: 91.0927
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0880 - Last Element ID: 1014
+
+------------------------------[Epoch: 31]------------------------------
+2026-01-24 17:05:40.785514
+Epoch: 31, Train Loss = 0.001, Lr = 0.000026
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.2924 - Recall@5: 96.7190 - Recall@10: 97.2896 - Recall@top1: 99.2867 - AP: 91.4184
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0959 - Last Element ID: 1580
+
+------------------------------[Epoch: 32]------------------------------
+2026-01-24 17:09:56.731909
+Epoch: 32, Train Loss = 0.000, Lr = 0.000024
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.1498 - Recall@5: 97.2896 - Recall@10: 97.7175 - Recall@top1: 99.2867 - AP: 91.7695
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1316 - Last Element ID: 0854
+
+------------------------------[Epoch: 33]------------------------------
+2026-01-24 17:14:10.338557
+Epoch: 33, Train Loss = 0.000, Lr = 0.000021
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.7204 - Recall@5: 97.1469 - Recall@10: 97.8602 - Recall@top1: 99.4294 - AP: 92.4098
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1019 - Last Element ID: 0839
+
+------------------------------[Epoch: 34]------------------------------
+2026-01-24 17:18:19.353214
+Epoch: 34, Train Loss = 0.001, Lr = 0.000019
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.1512 - Recall@5: 96.5763 - Recall@10: 97.1469 - Recall@top1: 99.2867 - AP: 90.3535
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 0957 - Last Element ID: 1405
+
+------------------------------[Epoch: 35]------------------------------
+2026-01-24 17:22:38.361890
+Epoch: 35, Train Loss = 0.000, Lr = 0.000017
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.2924 - Recall@5: 96.8616 - Recall@10: 97.5749 - Recall@top1: 99.2867 - AP: 92.0115
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1329 - Last Element ID: 1088
+
+------------------------------[Epoch: 36]------------------------------
+2026-01-24 17:26:50.078141
+Epoch: 36, Train Loss = 0.000, Lr = 0.000014
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.2924 - Recall@5: 97.0043 - Recall@10: 97.4322 - Recall@top1: 99.2867 - AP: 92.1715
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1602 - Last Element ID: 1290
+
+------------------------------[Epoch: 37]------------------------------
+2026-01-24 17:31:03.196451
+Epoch: 37, Train Loss = 0.000, Lr = 0.000012
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.8631 - Recall@5: 97.0043 - Recall@10: 97.5749 - Recall@top1: 99.2867 - AP: 91.8840
+New best score: 0.9586, saved checkpoint
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1074 - Last Element ID: 0990
+
+------------------------------[Epoch: 38]------------------------------
+2026-01-24 17:34:37.527687
+Epoch: 38, Train Loss = 0.000, Lr = 0.000010
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 94.8645 - Recall@5: 97.0043 - Recall@10: 97.2896 - Recall@top1: 99.1441 - AP: 92.1274
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 0
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1632 - Last Element ID: 1431
+
+------------------------------[Epoch: 39]------------------------------
+2026-01-24 17:38:08.885590
+Epoch: 39, Train Loss = 0.001, Lr = 0.000007
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.1498 - Recall@5: 97.0043 - Recall@10: 97.2896 - Recall@top1: 99.1441 - AP: 92.2074
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1252 - Last Element ID: 1605
+
+------------------------------[Epoch: 40]------------------------------
+2026-01-24 17:41:38.838459
+Epoch: 40, Train Loss = 0.000, Lr = 0.000005
+
+------------------------------[Evaluate]------------------------------
+Extract Features:
+Compute Scores:
+Recall@1: 95.4351 - Recall@5: 97.2896 - Recall@10: 97.5749 - Recall@top1: 99.1441 - AP: 92.4415
+
+Shuffle Dataset:
+Original Length: 37854 - Length after Shuffle: 37824
+Break Counter: 512
+Pairs left out of last batch to avoid creating noise: 30
+First Element ID: 1242 - Last Element ID: 0916
+
+Training completed! Best score: 0.9586
+Best checkpoint saved at: /root/code/gsra/checkpoints/U1652-S2D_ConvNeXt_baseline_SALAD/01-24-14-49_lr-0.0001_loss-SemiTriplet/best_score.pth

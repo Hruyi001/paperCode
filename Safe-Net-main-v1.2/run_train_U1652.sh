@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 训练配置参数
-name="SafeNet-block4-lr0.01-sp2-bs8-ep120-s256-U1652"
-data_dir="/datasets/University-Release/train"
+name="SafeNet-block4-lr0.01-sp2-bs8-ep200-s256-U1652"
+data_dir="/root/dataset/University-Release/train"
 gpu_ids=0
 num_worker=4
 lr=0.01
@@ -10,7 +10,7 @@ sample_num=2
 block=4
 batchsize=8
 triplet_loss=0
-num_epochs=120
+num_epochs=200
 views=2
 h=256
 w=256

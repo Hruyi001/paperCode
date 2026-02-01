@@ -1,0 +1,15 @@
+# Safe-Net 项目依赖
+# 安装命令: pip install -r requirements.txt
+# 或者在 conda 环境中: conda install --file requirements.txt
+
+# 核心依赖
+torch>=1.0.0
+numpy
+Pillow
+
+# 配置和可视化
+PyYAML
+matplotlib
+
+# 可选依赖（用于混合精度训练）
+# apex  # 需要从源码安装: https://github.com/NVIDIA/apex

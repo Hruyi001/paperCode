@@ -36,7 +36,15 @@ def get_backbone(backbone_arch=None,backbone_configs=None):
         assert 'layers_to_crop' in backbone_configs
         assert 'norm_layer' in backbone_configs
         assert 'return_token' in backbone_configs
-        return backbones.DINOv2(model_name=backbone_arch, **backbone_configs)
+        # 确保 return_token_list 存在，如果不存在则默认为 False
+        if 'return_token_list' not in backbone_configs:
+            backbone_configs['return_token_list'] = False
+        # 确保 adapter 存在，如果不存在则默认为 None
+        if 'adapter' not in backbone_configs:
+            backbone_configs['adapter'] = None
+        # 创建新的配置字典，排除可能存在的 model_name 键
+        config_dict = {k: v for k, v in backbone_configs.items() if k != 'model_name'}
+        return backbones.DINOv2(model_name=backbone_arch, **config_dict)
     elif 'convnext' in backbone_arch.lower():
         assert 'stages_to_freeze' in backbone_configs
         assert 'return_token' in backbone_configs

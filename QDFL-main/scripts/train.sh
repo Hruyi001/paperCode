@@ -87,4 +87,3 @@ python -c "import numpy; print(f'NumPy version: {numpy.__version__}')" 2>/dev/nu
 
 echo "开始训练..."
 python main.py
-

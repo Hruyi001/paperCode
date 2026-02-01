@@ -129,8 +129,14 @@ formatted_time = "{:02}:{:02}:{:02}".format(int(hours), int(minutes), int(second
 
 # 显示训练完成通知及训练时间
 def show_notification():
-    root = tk.Tk()
-    root.withdraw()  # 隐藏主窗口
-    messagebox.showinfo("Complete", f"Total time: {formatted_time}")
+    try:
+        root = tk.Tk()
+        root.withdraw()  # 隐藏主窗口
+        messagebox.showinfo("Complete", f"Total time: {formatted_time}")
+    except Exception as e:
+        # 如果无法显示 GUI（如无显示环境），则打印到控制台
+        print(f"\n{'='*60}")
+        print(f"训练完成！总耗时: {formatted_time}")
+        print(f"{'='*60}\n")
 
 show_notification()
