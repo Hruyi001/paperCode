@@ -7,6 +7,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# 选择可用的 Python（优先使用当前环境中的 python，其次 python3）
+PYTHON_BIN="${PYTHON_BIN:-python}"
+if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+fi
+
 # ========== 在这里直接设置你的数据集路径 ==========
 # University-1652 数据集路径
 U1652_TRAIN_ROOT="/root/dataset/University-Release/train/"
@@ -76,14 +82,34 @@ if [ -n "$DINOV2_CHECKPOINT" ] && [ -f "$DINOV2_CHECKPOINT" ]; then
     # 使用 checkpoint 文件作为预训练权重（代码会自动提取 backbone 权重）
     export DINOV2_VITB14_WEIGHT="$DINOV2_CHECKPOINT"
     echo "使用 checkpoint 中的 backbone 权重: $DINOV2_CHECKPOINT"
+elif [ -f "$DINOV2_WEIGHTS_DIR/DINO_QDFL_U1652.pth" ]; then
+    # 如果 checkpoint 不存在，尝试使用 pretrained_weights 目录下的 DINO_QDFL_U1652.pth
+    export DINOV2_VITB14_WEIGHT="$DINOV2_WEIGHTS_DIR/DINO_QDFL_U1652.pth"
+    echo "使用 pretrained_weights 中的权重文件: $DINOV2_VITB14_WEIGHT"
+elif [ -f "$DINOV2_WEIGHTS_DIR/dinov2_vitb14_pretrain.pth" ]; then
+    # 使用官方 DINOv2 预训练权重
+    echo "使用官方 DINOv2 预训练权重: $DINOV2_WEIGHTS_DIR/dinov2_vitb14_pretrain.pth"
+else
+    # 如果都不存在，提供下载提示
+    echo "错误: 未找到 DINOv2 预训练权重文件"
+    echo "请执行以下操作之一:"
+    echo "  1. 下载官方 DINOv2 权重:"
+    echo "     wget -O $DINOV2_WEIGHTS_DIR/dinov2_vitb14_pretrain.pth https://dl.fbaipublicfiles.com/dinov2/dinov2_vitb14/dinov2_vitb14_pretrain.pth"
+    echo "  2. 或者将 checkpoint 文件放在 $DINOV2_CHECKPOINT"
+    echo "  3. 或者将权重文件放在 $DINOV2_WEIGHTS_DIR/DINO_QDFL_U1652.pth"
+    exit 1
 fi
 
 # 检查并修复 NumPy 版本兼容性问题
 echo "检查依赖环境..."
-python -c "import numpy; print(f'NumPy version: {numpy.__version__}')" 2>/dev/null || {
+"$PYTHON_BIN" -c "import numpy; print(f'NumPy version: {numpy.__version__}')" 2>/dev/null || {
     echo "警告: NumPy 版本可能不兼容，正在修复..."
-    pip install "numpy<2.0.0" --quiet
+    "$PYTHON_BIN" -m pip install "numpy<2.0.0" --quiet || {
+        echo "错误: 当前 Python 无法使用 pip（可能没激活 conda 环境）"
+        echo "请先激活你的环境，例如：conda activate qfdl"
+        exit 1
+    }
 }
 
 echo "开始训练..."
-python main.py
+"$PYTHON_BIN" main.py

@@ -31,6 +31,7 @@ class HeatmapVisualizer:
         self.device = device
         self.img_size = img_size
         self.x_fine_0 = None
+        self.backbone_feature_map = None
         
         # 注册hook来捕获x_fine_0
         self._register_hook()
@@ -68,6 +69,18 @@ class HeatmapVisualizer:
         if not aqeu_found:
             print("Warning: Could not find AQEU module for hook registration")
             print("Will try direct extraction method")
+
+    def _run_backbone(self, img_tensor):
+        """
+        运行backbone并返回空间特征图 [1, C, H, W]（如果backbone返回token/tuple，会做兼容处理）
+        """
+        backbone_output = self.model.backbone(img_tensor)
+        if isinstance(backbone_output, tuple):
+            # 常见约定：(token, feature_map)
+            _, feature_map = backbone_output
+        else:
+            feature_map = backbone_output
+        return feature_map
     
     def load_image(self, img_path):
         """加载并预处理图像"""
@@ -116,7 +129,7 @@ class HeatmapVisualizer:
         
         return heatmap
     
-    def visualize(self, img_path, save_path=None):
+    def visualize(self, img_path, save_path=None, compare=False, method='mean'):
         """
         对单张图像生成热力图可视化
         
@@ -134,6 +147,7 @@ class HeatmapVisualizer:
         
         # 重置特征图
         self.x_fine_0 = None
+        self.backbone_feature_map = None
         
         # 前向传播
         with torch.no_grad():
@@ -145,11 +159,8 @@ class HeatmapVisualizer:
             # 尝试直接从组件获取
             try:
                 # 手动调用模型来获取特征
-                backbone_output = self.model.backbone(img_tensor)
-                if isinstance(backbone_output, tuple):
-                    _, feature_map = backbone_output
-                else:
-                    feature_map = backbone_output
+                feature_map = self._run_backbone(img_tensor)
+                self.backbone_feature_map = feature_map.detach().cpu()
                 
                 # 调用AQEU - QDFL中AQEU返回(aqeu_feature, x_fine)，其中x_fine就是x_fine_0
                 if hasattr(self.model.components, 'AQEU'):
@@ -166,38 +177,72 @@ class HeatmapVisualizer:
                 import traceback
                 traceback.print_exc()
                 return None
+        else:
+            # 即使hook成功，也额外抓一次backbone的空间特征用于对比
+            try:
+                feature_map = self._run_backbone(img_tensor)
+                self.backbone_feature_map = feature_map.detach().cpu()
+            except Exception as e:
+                print(f"Warning: Failed to capture backbone feature map for {img_path}: {e}")
         
         if self.x_fine_0 is None:
             print(f"Error: Could not extract feature map for {img_path}")
             return None
         
-        # 生成热力图
-        heatmap = self.generate_heatmap(self.x_fine_0, method='mean')
+        # 生成热力图（QDFL: x_fine_0）
+        heatmap_qdfl = self.generate_heatmap(self.x_fine_0, method=method)
         
         # 调整热力图大小到原图大小
         img_array = np.array(img_pil)
         h, w = img_array.shape[:2]
-        heatmap_resized = np.array(Image.fromarray(heatmap).resize((w, h), Image.BICUBIC))
+        heatmap_qdfl_resized = np.array(Image.fromarray(heatmap_qdfl).resize((w, h), Image.BICUBIC))
+
+        heatmap_backbone_resized = None
+        if compare and self.backbone_feature_map is not None:
+            heatmap_backbone = self.generate_heatmap(self.backbone_feature_map, method=method)
+            heatmap_backbone_resized = np.array(Image.fromarray(heatmap_backbone).resize((w, h), Image.BICUBIC))
         
         # 创建可视化
-        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+        if compare and heatmap_backbone_resized is not None:
+            fig, axes = plt.subplots(1, 5, figsize=(30, 6))
+        else:
+            fig, axes = plt.subplots(1, 3, figsize=(18, 6))
         
         # 原图
         axes[0].imshow(img_array)
         axes[0].set_title('Original Image', fontsize=14)
         axes[0].axis('off')
         
-        # 热力图
-        im = axes[1].imshow(heatmap_resized, cmap='jet', interpolation='bilinear')
-        axes[1].set_title('Heatmap (x_fine_0)', fontsize=14)
+        # 热力图（QDFL: x_fine_0）
+        im = axes[1].imshow(heatmap_qdfl_resized, cmap='jet', interpolation='bilinear')
+        axes[1].set_title('Heatmap (QDFL x_fine_0)', fontsize=14)
         axes[1].axis('off')
         plt.colorbar(im, ax=axes[1], fraction=0.046)
         
-        # 叠加图
-        axes[2].imshow(img_array)
-        overlay = axes[2].imshow(heatmap_resized, cmap='jet', alpha=0.5, interpolation='bilinear')
-        axes[2].set_title('Overlay', fontsize=14)
-        axes[2].axis('off')
+        if compare and heatmap_backbone_resized is not None:
+            # 热力图（Backbone）
+            im2 = axes[2].imshow(heatmap_backbone_resized, cmap='jet', interpolation='bilinear')
+            axes[2].set_title('Heatmap (Backbone feat map)', fontsize=14)
+            axes[2].axis('off')
+            plt.colorbar(im2, ax=axes[2], fraction=0.046)
+
+            # 叠加（QDFL）
+            axes[3].imshow(img_array)
+            axes[3].imshow(heatmap_qdfl_resized, cmap='jet', alpha=0.5, interpolation='bilinear')
+            axes[3].set_title('Overlay (QDFL x_fine_0)', fontsize=14)
+            axes[3].axis('off')
+
+            # 叠加（Backbone）
+            axes[4].imshow(img_array)
+            axes[4].imshow(heatmap_backbone_resized, cmap='jet', alpha=0.5, interpolation='bilinear')
+            axes[4].set_title('Overlay (Backbone feat map)', fontsize=14)
+            axes[4].axis('off')
+        else:
+            # 叠加图
+            axes[2].imshow(img_array)
+            axes[2].imshow(heatmap_qdfl_resized, cmap='jet', alpha=0.5, interpolation='bilinear')
+            axes[2].set_title('Overlay', fontsize=14)
+            axes[2].axis('off')
         
         plt.tight_layout()
         
@@ -236,8 +281,12 @@ def main():
                         help='Path to model config file')
     parser.add_argument('--output_dir', type=str, default='./heatmap_visualizations',
                         help='Directory to save visualization results')
-    parser.add_argument('--num_images', type=int, default=10,
+    parser.add_argument('--num_images', type=int, default=20,
                         help='Number of images to visualize')
+    parser.add_argument('--compare', action='store_true',
+                        help='Generate comparison heatmaps (QDFL x_fine_0 vs backbone feature map)')
+    parser.add_argument('--heatmap_method', type=str, default='mean', choices=['mean', 'max', 'norm'],
+                        help="How to reduce channels into a 2D heatmap: 'mean'|'max'|'norm'")
     parser.add_argument('--img_size', type=int, nargs=2, default=[280, 280],
                         help='Input image size [height width]')
     
@@ -284,7 +333,7 @@ def main():
         save_path = os.path.join(args.output_dir, f"{img_name}_heatmap.png")
         
         # 生成可视化
-        fig = visualizer.visualize(img_path, save_path)
+        fig = visualizer.visualize(img_path, save_path, compare=args.compare, method=args.heatmap_method)
         
         if fig is not None:
             plt.close(fig)

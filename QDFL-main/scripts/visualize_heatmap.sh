@@ -7,6 +7,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# 选择可用的 Python（优先使用当前环境中的 python，其次 python3）
+PYTHON_BIN="${PYTHON_BIN:-python}"
+if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+fi
+
 # ========== 在这里直接设置你的数据集路径 ==========
 # University-1652 数据集路径
 U1652_TEST_ROOT="/root/dataset/University-Release/test/"
@@ -27,7 +33,16 @@ DENSEUAV_QUERY_DRONE="${DENSEUAV_TEST_ROOT}/query_drone"
 VISUALIZE_DATASET="U1652_DRONE"  # 默认使用U1652的query_drone
 
 # 模型checkpoint路径
-CHECKPOINT="./checkpoint/DINO_QDFL_U1652.pth"
+CHECKPOINT="LOGS/dinov2_vitb14_QDFL/lightning_logs/version_3/checkpoints/last.ckpt"
+
+# DINOv2 预训练权重路径
+# 选项1: 使用 DINOv2 官方预训练权重（需要下载）
+#   下载地址: https://github.com/facebookresearch/dinov2
+#   将权重文件放在 ./pretrained_weights/ 目录下
+# 选项2: 使用已有的 checkpoint 文件（从 checkpoint 中提取 backbone 权重）
+#   如果设置了 DINOV2_CHECKPOINT，将使用该 checkpoint 中的 backbone 权重
+DINOV2_WEIGHTS_DIR="./pretrained_weights"  # 预训练权重目录
+DINOV2_CHECKPOINT="./checkpoint/DINO_QDFL_U1652.pth"  # 使用 checkpoint 文件中的 backbone 权重
 
 # 模型配置文件
 CONFIG_FILE="./model_configs/dino_b_QDFL.yaml"
@@ -36,7 +51,7 @@ CONFIG_FILE="./model_configs/dino_b_QDFL.yaml"
 OUTPUT_DIR="./heatmap_visualizations"
 
 # 要可视化的图像数量
-NUM_IMAGES=10
+NUM_IMAGES=20
 
 # 输入图像大小 [height width]
 IMG_HEIGHT=280
@@ -99,6 +114,26 @@ if [ ! -f "$CONFIG_FILE" ]; then
     exit 1
 fi
 
+# 设置 DINOv2 backbone 预训练权重路径（和 train.sh 保持一致的优先级）
+export DINOV2_WEIGHTS_DIR
+if [ -n "$DINOV2_CHECKPOINT" ] && [ -f "$DINOV2_CHECKPOINT" ]; then
+    export DINOV2_VITB14_WEIGHT="$DINOV2_CHECKPOINT"
+    echo "使用 checkpoint 中的 backbone 权重: $DINOV2_CHECKPOINT"
+elif [ -f "$DINOV2_WEIGHTS_DIR/DINO_QDFL_U1652.pth" ]; then
+    export DINOV2_VITB14_WEIGHT="$DINOV2_WEIGHTS_DIR/DINO_QDFL_U1652.pth"
+    echo "使用 pretrained_weights 中的权重文件: $DINOV2_VITB14_WEIGHT"
+elif [ -f "$DINOV2_WEIGHTS_DIR/dinov2_vitb14_pretrain.pth" ]; then
+    echo "使用官方 DINOv2 预训练权重: $DINOV2_WEIGHTS_DIR/dinov2_vitb14_pretrain.pth"
+else
+    echo "错误: 未找到 DINOv2 预训练权重文件"
+    echo "请执行以下操作之一:"
+    echo "  1. 下载官方 DINOv2 权重:"
+    echo "     wget -O $DINOV2_WEIGHTS_DIR/dinov2_vitb14_pretrain.pth https://dl.fbaipublicfiles.com/dinov2/dinov2_vitb14/dinov2_vitb14_pretrain.pth"
+    echo "  2. 或者将 checkpoint 文件放在 $DINOV2_CHECKPOINT"
+    echo "  3. 或者将权重文件放在 $DINOV2_WEIGHTS_DIR/DINO_QDFL_U1652.pth"
+    exit 1
+fi
+
 echo "图像目录: $IMAGE_DIR"
 echo ""
 
@@ -116,19 +151,24 @@ echo ""
 
 # 检查并修复 NumPy 版本兼容性问题
 echo "检查依赖环境..."
-python -c "import numpy; print(f'NumPy version: {numpy.__version__}')" 2>/dev/null || {
+"$PYTHON_BIN" -c "import numpy; print(f'NumPy version: {numpy.__version__}')" 2>/dev/null || {
     echo "警告: NumPy 版本可能不兼容，正在修复..."
-    pip install "numpy<2.0.0" --quiet
+    "$PYTHON_BIN" -m pip install "numpy<2.0.0" --quiet || {
+        echo "错误: 当前 Python 无法使用 pip（可能没激活 conda 环境）"
+        echo "请先激活你的环境，例如：conda activate qfdl"
+        exit 1
+    }
 }
 
 # 运行可视化脚本
 echo "开始生成热力图可视化..."
-python visualize_heatmap.py \
+"$PYTHON_BIN" visualize_heatmap.py \
     --image_dir "$IMAGE_DIR" \
     --checkpoint "$CHECKPOINT" \
     --config "$CONFIG_FILE" \
     --output_dir "$OUTPUT_DIR" \
     --num_images "$NUM_IMAGES" \
+    --compare \
     --img_size $IMG_SIZE
 
 echo ""
