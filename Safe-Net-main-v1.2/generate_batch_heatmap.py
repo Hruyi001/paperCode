@@ -91,7 +91,7 @@ print('=' * 60)
 print(f'模型名称: {opt.name}')
 print(f'输入目录: {opt.input_dir}')
 print(f'输出目录: {opt.output_dir}')
-print(f'模式: {opt.mode} ({'drone->satellite' if opt.mode == 1 else 'satellite->drone'})')
+print(f'模式: {opt.mode} ({"drone->satellite" if opt.mode == 1 else "satellite->drone"})')
 print(f'使用query_transform: {opt.use_query_transform}')
 print(f'Epoch: {opt.epoch}')
 print(f'Checkpoint目录: {checkpoint_dir}')
@@ -167,29 +167,8 @@ def generate_heatmap_for_image(model, img_path, opt, output_path, use_query_tran
         # 创建输出目录
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # 保存热力图（只保存热力图，不叠加原图）
-        # 添加"w/ DSA"标识
-        heatmap_with_label = heatmap_img.copy()
-        
-        # 在图像上添加文字标识
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.8
-        thickness = 2
-        text = "w/ DSA"
-        text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
-        
-        # 在左上角添加文字（白色文字，黑色背景）
-        text_x = 10
-        text_y = 30
-        cv2.rectangle(heatmap_with_label, 
-                      (text_x - 5, text_y - text_size[1] - 5),
-                      (text_x + text_size[0] + 5, text_y + 5),
-                      (0, 0, 0), -1)  # 黑色背景
-        cv2.putText(heatmap_with_label, text, (text_x, text_y),
-                   font, font_scale, (255, 255, 255), thickness)
-        
-        # 保存为PNG格式
-        cv2.imwrite(str(output_path), cv2.cvtColor(heatmap_with_label, cv2.COLOR_RGB2BGR))
+        # 保存热力图叠加原图的结果
+        cv2.imwrite(str(output_path), cv2.cvtColor(heatmap_img, cv2.COLOR_RGB2BGR))
         return True
     except Exception as e:
         print(f"  错误: {str(e)}")

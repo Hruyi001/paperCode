@@ -11,8 +11,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 # 固定输入图像目录和输出目录
-INPUT_DIR="/root/exp/exp4/4-1/img"
-OUTPUT_DIR="/root/exp/exp4/4-1/qdfl"
+INPUT_DIR="/root/exp/exp3/2.0/img"
+OUTPUT_DIR="/root/exp/exp3/2.0/qfdl"
 
 # 选择可用的 Python（优先使用当前环境中的 python，其次 python3）
 PYTHON_BIN="${PYTHON_BIN:-python}"

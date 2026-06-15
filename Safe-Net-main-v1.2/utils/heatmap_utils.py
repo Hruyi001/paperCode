@@ -96,12 +96,13 @@ def generate_heatmap_data(model, img_path, opt):
         # 归一化到0-1范围
         cam_resized = (cam_resized - cam_resized.min()) / (cam_resized.max() - cam_resized.min() + 1e-8)
 
-        # 生成纯热力图（不叠加原图）
+        # 生成热力图并叠加到原图
         # 使用JET colormap，范围是：蓝色(低值) -> 青色 -> 绿色 -> 黄色 -> 红色(高值)
         heatmap = cv2.applyColorMap(np.uint8(255 * cam_resized), cv2.COLORMAP_JET)
-        heatmap = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
-        # 直接返回纯热力图，不叠加原图
-        superimposed_img = heatmap
+        heatmap_rgb = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
+        # 将热力图叠加到原图（alpha=0.5 平衡原图与热力图的可见度）
+        original_np = np.array(img)
+        superimposed_img = cv2.addWeighted(heatmap_rgb, 0.5, original_np, 0.5, 0)
     else:
         # 如果无法获取特征图，返回原图
         print("警告: 无法获取特征图，返回原图")

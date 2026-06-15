@@ -5,17 +5,17 @@
 
 # ========== 用户配置区域 ==========
 # 输入目录：包含所有要处理的图像
-INPUT_DIR="./data/University-Release/test/query_drone"
+INPUT_DIR="/root/exp/exp3-1/0000-4"
 
 # 输出目录：保存生成的热力图
-OUTPUT_DIR="./safe-net-heatmap/query_drone"
+OUTPUT_DIR="/root/exp/exp3-1/b1/safe-net"
 
 # 模型配置
 MODEL_NAME="SafeNet-block4-lr0.01-sp2-bs8-ep120-s256-U1652"
 EPOCH=119
 GPU_IDS="0"
 
-# 模式设置
+# 模式设置z
 # 1 = drone->satellite (用于gallery_satellite)
 # 2 = satellite->drone (用于query_drone)
 MODE=2

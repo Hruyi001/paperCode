@@ -21,14 +21,14 @@ U1652_TEST_ROOT="/root/dataset/University-Release/test/"  # 测试集路径
 # SUES-200 数据集路径
 SUES200_TRAIN_ROOT="/media/whu/Largedisk/datasets/SUES-200-512x512/Training"
 SUES200_TEST_ROOT="/media/whu/Largedisk/datasets/SUES-200-512x512/Testing"  # 测试集路径
-SUES200_HEIGHT="250"  # 可选: 150, 200, 250, 300
+SUES200_HEIGHT="200"  # 可选: 150, 200, 250, 300
 
 # DenseUAV 数据集路径
 DENSEUAV_TRAIN_ROOT="/media/whu/Largedisk/datasets/DenseUAV/train"
 DENSEUAV_TEST_ROOT="/media/whu/Largedisk/datasets/DenseUAV/test"  # 测试集路径
 
 # 选择要训练的数据集: U1652 | SUES200 | DENSEUAV
-QDFL_DATASET="U1652"
+QDFL_DATASET="SUES200"
 
 # DINOv2 预训练权重路径
 # 选项1: 使用 DINOv2 官方预训练权重（需要下载）

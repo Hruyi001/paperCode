@@ -1,0 +1,10 @@
+#torch
+#torchvision
+pyyaml
+tqdm
+numpy
+scipy
+matplotlib
+pillow
+opencv-python
+timm==0.5.4

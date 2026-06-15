@@ -128,6 +128,61 @@ class HeatmapVisualizer:
         heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8)
         
         return heatmap
+
+    def extract_heatmaps(self, img_path, method='mean'):
+        """
+        对单张图像提取两类热力图（均 resize 到原图大小）：
+        - QDFL: x_fine_0
+        - Backbone: backbone_feature_map（若可获得）
+
+        Returns:
+            img_array: [H,W,3] uint8
+            heatmap_qdfl_resized: [H,W] float/np
+            heatmap_backbone_resized: [H,W] float/np or None
+        """
+        img_pil, img_tensor = self.load_image(img_path)
+        if img_pil is None:
+            return None, None, None
+
+        # 重置特征图
+        self.x_fine_0 = None
+        self.backbone_feature_map = None
+
+        with torch.no_grad():
+            _ = self.model(img_tensor)
+
+        # 即使 hook 成功，也尽量抓一次 backbone feature map
+        try:
+            feature_map = self._run_backbone(img_tensor)
+            self.backbone_feature_map = feature_map.detach().cpu()
+        except Exception:
+            self.backbone_feature_map = None
+
+        # hook 失败时兜底：直接调用 AQEU（用 device 上的特征，避免来回搬运）
+        if self.x_fine_0 is None:
+            try:
+                if hasattr(self.model, 'components') and hasattr(self.model.components, 'AQEU'):
+                    feature_map_dev = self._run_backbone(img_tensor)  # on device
+                    aqeu_output = self.model.components.AQEU(feature_map_dev)
+                    if isinstance(aqeu_output, tuple) and len(aqeu_output) == 2:
+                        self.x_fine_0 = aqeu_output[1].detach().cpu()
+            except Exception:
+                self.x_fine_0 = None
+
+        if self.x_fine_0 is None:
+            return None, None, None
+
+        heatmap_qdfl = self.generate_heatmap(self.x_fine_0, method=method)
+        img_array = np.array(img_pil)
+        h, w = img_array.shape[:2]
+        heatmap_qdfl_resized = np.array(Image.fromarray(heatmap_qdfl).resize((w, h), Image.BICUBIC))
+
+        heatmap_backbone_resized = None
+        if self.backbone_feature_map is not None:
+            heatmap_backbone = self.generate_heatmap(self.backbone_feature_map, method=method)
+            heatmap_backbone_resized = np.array(Image.fromarray(heatmap_backbone).resize((w, h), Image.BICUBIC))
+
+        return img_array, heatmap_qdfl_resized, heatmap_backbone_resized
     
     def visualize(self, img_path, save_path=None, compare=False, method='mean'):
         """
@@ -329,8 +384,10 @@ def main():
         print(f"Processing {i+1}/{len(image_files)}: {os.path.basename(img_path)}")
         
         # 生成保存路径
-        img_name = Path(img_path).stem
-        save_path = os.path.join(args.output_dir, f"{img_name}_heatmap.png")
+        rel_path = os.path.relpath(img_path, start=args.image_dir)
+        rel_no_ext = os.path.splitext(rel_path)[0]
+        save_path = os.path.join(args.output_dir, f"{rel_no_ext}_heatmap.png")
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         
         # 生成可视化
         fig = visualizer.visualize(img_path, save_path, compare=args.compare, method=args.heatmap_method)

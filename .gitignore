@@ -1,19 +1,126 @@
 ############################
 # Global ignore for project
 ############################
-*.mat
 
-# Ignore all PyTorch model checkpoints
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE / OS files
+.vscode/
+.idea/
+**/.vscode/
+**/.idea/
+.DS_Store
+Thumbs.db
+
+# Nested repository/tool metadata
+.nested-git-backup/
+**/.git/
+**/.claude/
+
+# Model weights / checkpoints
 *.pth
 *.pt
 *.pth.taraa
 *.ckpt
+*.onnx
+*.bin
+*.safetensors
+*.h5
+*.hdf5
+*.pb
+*.weights
+checkpoints/
+checkpoint/
+**/checkpoints/
+**/checkpoint/
+weights/
+weight/
+**/weights/
+**/weight/
+pretrained_weights/
+pretrained_models/
+pretrained/
+pretrain/
+**/pretrained_weights/
+**/pretrained_models/
+**/pretrained/
+**/pretrain/
 
-# Ignore any directory named "heatmap_img" and its contents
+# Dataset / large data files
+*.lmdb
+*.mdb
+*.h5ad
+*.tfrecord
+*.record
+*.csv.gz
+*.jsonl.gz
+*.parquet
+*.feather
+*.arrow
+*.sqlite
+*.db
+
+# Generated arrays / scientific data
+*.mat
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.hickle
+*.lmdb
+*.mdb
+
+# Training logs / experiment tracking
+runs/
+logs/
+log/
+wandb/
+mlruns/
+tensorboard/
+lightning_logs/
+**/runs/
+**/logs/
+**/log/
+**/wandb/
+**/mlruns/
+**/tensorboard/
+**/lightning_logs/
+
+# Results / generated outputs
+outputs/
+output/
+results/
+result/
+vis/
+visualization/
+heatmaps/
 heatmap_img/
+heatmap_results_batch/
+heatmap_visualization_results/
+CCR-FCFE-Net/model/
+CCR-FCFE-Net/model_new/
+CCR-FCFE-Net/model_fcfe/
+**/outputs/
+**/output/
+**/results/
+**/result/
+**/vis/
+**/visualization/
+**/heatmaps/
 **/heatmap_img/
+**/heatmap_results_batch/
 
-# Ignore all compression archives
+# Compression archives
 *.zip
 *.tar
 *.tar.gz
@@ -25,11 +132,7 @@ heatmap_img/
 *.bz2
 *.xz
 
-# Ignore any directory named "heatmap_results_batch" and its contents
-heatmap_results_batch/
-**/heatmap_results_batch/
-
-# Ignore all image files
+# Image files
 *.jpg
 *.jpeg
 *.png
